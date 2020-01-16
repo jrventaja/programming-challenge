@@ -1,67 +1,95 @@
-# Programming Challenge
+# Programming Challenge Media Catalog
 
-This project consists in three parts. Each item is important and relevant to the upcoming steps.
+Steps to run/test
 
 ## Step 1
 
-The first step consists in analyzing the data in the files:
-- _title.basics.tsv.gz_
-- _title.ratings.tsv.gz_
-- _name.basics.tsv.gz_
-
-The data in _title.basics.tsv.gz_ contains the following information for titles:
-- __tconst__ (_string_) -- alphanumeric unique identifier of the title;
-- __titleType__ (_string_) -- the type/format of the title (e.g. movie, short, tvseries, tvepisode, video, etc);
-- __primaryTitle__ (_string_) -- the more popular title / the title used by the filmmakers on promotional materials at the point of release;
-- __originalTitle__ (_string_) -- original title, in the original language;
-- __isAdult__ (_boolean_) -- 0: non-adult title; 1: adult title;
-- __startYear__ (_YYYY_) -- represents the release year of a title. In the case of TV Series, it is the series start year;
-- __endYear__ (_YYYY_) -- TV Series end year.  '\N' for all other title types;
-- __runtimeMinutes__ -- primary runtime of the title, in minutes;
-- __genres__ (_string array_) -- includes up to three genres associated with the title.
-
-The data in _title.ratings.tsv.gz_ contains the following information for ratings:
-- __tconst__ (_string_) -- alphanumeric unique identifier of the title;
-- __averageRating__ -- weighted average of all the individual user ratings;
-- __numVotes__ -- number of votes the title has received.
-
-The data in  _name.basics.tsv.gz_ contains the following information for names:
-- __nconst__ (_string_) - alphanumeric unique identifier of the name/person;
-- __primaryName__ (_string_)– name by which the person is most often credited;
-- __birthYear__ – in YYYY format;
-- __deathYear__ – in YYYY format if applicable, else '\N';
-- __primaryProfession__ (_array of strings_)– the top-3 professions of the person;
-- __knownForTitles__ (_array of tconsts_) – titles the person is known for.
-
-You need to generate a model that represents such data and create a database to be further used in your project.
+Unzip the zip/gz files with the compressor of your choice (I use 7zip). This will result in 3 .tsv files.
 
 ## Step 2
 
-You have to implement a REST API to consume the generated database.
+Set the variables at DataLoaderTool\appsettings.json:
+Section "Paths":
+"PeopleData" should refer to the "name.basics" file;
+"MediaData" should refer to the "title.basics" file;
+"RatingData" should refer to the "title.ratings" file.\
 
-Moreover, you need to implement at least the following methods:
-- List movies (with their relevant data) filtered by category;
-- List the top 10 movies (in terms of rating) filtered by year. If no year is given as parameter, the API should list all movies with pagination;
+e.g:"PeopleData": "C:\\Users\\joser\\Documents\\Projects\\programming-challenge\\dataset\\name.basics.tsv\\data.tsv",
+    "MediaData": "C:\\Users\\joser\\Documents\\Projects\\programming-challenge\\dataset\\title.basics.tsv\\data.tsv",
+    "RatingData": "C:\\Users\\joser\\Documents\\Projects\\programming-challenge\\dataset\\title.ratings.tsv\\data.tsv"
 
-In both cases, the API should remove both adult movies and/or with rating less than 6.
 
 ## Step 3
 
-You have to implement a client application to access such API. The client should be preferably an Android, WPF, or web application.
+(Install SQL SERVER EXPRESS if you don't have it, and then) run the scripts contained at "DDL Scripts.sql" individually.
 
-The client application must present the data from the API for the methods specified in Step 2.
+## Step 4
 
-## Deliverables
+Run "dotnetrun" at cmd while at the solution folder. (You need .NET FRAMEWORK CORE 2.1 installed)
+It will take some time to load, because of the data size. After that, all tables are loaded with the data that was provided.
 
-You have to deliver:
-- A document with all relevant information and decisions that you made throughout the development. Feel free to write down your architectural decisions, the design patterns you used, the languages you chose, your testing scenarios, and so on;
-- All required details to install/run/test both your API and client applications;
-- Any other artifact you find relevant for your overall evaluation;
+## Step 5
 
-## Tips
+Time to run the service application, so we can receive requests through our API. Edit the file at "MediaCatalog\MediaCatalog\appsettings.json" setting the ConnectionStrings/Storage/Server with the address your SQL Server is listening (usually LOCALHOST\SQLEXPRESS if you are not using a VM to run the application - e.g Docker).
+Use "dotnet run" at MediaCatalog solution.
 
-- For Steps 1 and 2, we suggest you to use one of the following languages: C#, Java, or Python;
-- Testing is more than welcome;
-- Show us everything you know about best practices in Git;
-- Think carefully about your code quality, in terms of maintainability, readability, and simplicity. Also, do not overenginer your solution;
-- Keep in mind that we want to know how you create your solution from scratch.
+## Step 6
+
+Your application will be listening on port 44304 and is able to be tested.
+
+
+# API Documentation
+
+## List media categories
+
+URL: api/categories
+
+REQUEST TYPE: GET
+
+No parameters supported
+
+Response:
+
+200(OK) + Content
+
+Content example:
+
+
+[{"id":1,"name":"Documentary"},{"id":2,"name":"Short"},{"id":3,"name":"Animation"},{"id":4,"name":"Comedy"},{"id":5,"name":"Romance"},{"id":6,"name":"Sport"},{"id":7,"name":"Action"},{"id":8,"name":"News"},{"id":9,"name":"Drama"},{"id":10,"name":"Fantasy"},{"id":11,"name":"Horror"},{"id":12,"name":"Biography"},{"id":13,"name":"Music"},{"id":14,"name":"War"},{"id":15,"name":"Crime"},{"id":16,"name":"Western"},{"id":17,"name":"Family"},{"id":18,"name":"Adventure"},{"id":19,"name":"History"},{"id":20,"name":"Mystery"},{"id":22,"name":"Sci-Fi"},{"id":23,"name":"Thriller"},{"id":24,"name":"Musical"},{"id":25,"name":"Film-Noir"},{"id":26,"name":"Game-Show"},{"id":27,"name":"Talk-Show"},{"id":28,"name":"Reality-TV"},{"id":29,"name":"Adult"}]
+
+## List top rated movies
+URL: api/movies/top
+
+REQUEST TYPE: GET
+
+Supported query string parameters: year (number), page (number 1 to n - default: 1), pageSize (number 1 to n - default: 10).
+
+e.g: api/movies/top?year=2019, api/movies/top?page=3&pageSize=5
+
+Response:
+
+200(OK) + Content
+
+400(Bad Request)
+
+Content example:
+{"pageNumber":1,"pageSize":2,"content":[{"id":6735740,"title":"Love in Kilnerry","year":2019,"runtimeMinutes":100,"rating":10.00,"isAdult":false,"director":"Kimberly Graham","actors":["Adam McNulty","Addison LeMay","Anne Pearna","Bari Hyman","Bradley A. Boyd","Brandon Brumm","Brian Donovon","Courtney Bissonette","Dana Marisa Schoenfeld","Daniel Keith","Debargo Sanyal","Denise Coutre","Dominic Paolillo","Emilee Dupre","Franklin Kavaler","George Olsen","Isabella Romero","James McWilliams","James Patrick Nelson","Jeremy Fernandez","JohnMichael Mitchell","Juan David Pinzon","Kate Quisumbing","Kathy Searle","Kellen Ryan","Lawrence R. Leritz","Leon Morgan","Leona Ross","Maaike Snoep","Meghan Locwin","Nicholas Franks","Nick Sanchez","Odell Cureton","Reiko Johnson","Roger Hendricks Simon","Ross Matthei","Sam Ellis","Scott Watson","Sheila Stasack","Steven Scott","Sybil Lines","Todd Butera","Tony Triano","Virginia Johnson"],"genres":["Comedy"]},{"id":7535666,"title":"Retrocausality","year":2019,"runtimeMinutes":null,"rating":9.60,"isAdult":false,"director":"Kristian Denver Diaz","actors":["Aliser Ramos","Elisabeth Rioux","Kristian Denver Diaz","Logan Gervais"],"genres":["Drama","Romance"]}]}
+
+## List movies by category
+URL: api/movies
+
+REQUEST TYPE: GET
+
+Supported query string parameters: category (number - Must be informed, at this current version)
+
+e.g.: api/movies?category=10
+
+Response:
+
+200(OK) + Content
+
+400(BadRequest)
+
+Content example:
+
+{"pageNumber":1,"pageSize":2,"content":[{"id":3419,"title":"The Student of Prague","year":1913,"runtimeMinutes":85,"rating":6.50,"isAdult":false,"director":"Guido Seeber","actors":["Fritz Weidemann","Grete Berger","Hanns Heinz Ewers","John Gottowt","Lothar Körner","Lyda Salmonova","Paul Wegener"],"genres":["Drama","Fantasy","Horror"]},{"id":3643,"title":"The Avenging Conscience: or 'Thou Shalt Not Kill'","year":1914,"runtimeMinutes":78,"rating":6.50,"isAdult":false,"director":null,"actors":[],"genres":["Crime","Drama","Horror"]}]}
