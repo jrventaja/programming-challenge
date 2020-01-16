@@ -9,22 +9,15 @@ namespace MediaCatalog.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MoviesController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
-
-        public MoviesController() // ADD DI
+        public CategoriesController() // ADD DI
         {
 
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Movie>> Get(int year, string orderBy, int page, int pageSize)
-        {
-            return null;
-        }
-        
-        [HttpGet("{id}")]
-        public ActionResult<Movie> Get(int id)
+        public ActionResult<IEnumerable<string>> GetAll()
         {
             return null;
         }

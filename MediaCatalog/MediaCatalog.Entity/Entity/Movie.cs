@@ -5,12 +5,25 @@ namespace MediaCatalog.Entity
 {
     public class Movie
     {
-        public string Title { get; private set; }
-        public int Year { get; private set; }
-        public int RuntimeMinutes { get; private set; }
-        public decimal Rating { get; private set; }
-        public bool IsAdult { get; private set; }
-        public string Director { get; private set; }
-        public IEnumerable<string> Actors { get; private set; }
+        public int Id { get; }
+        public string Title { get; }
+        public int? Year { get; }
+        public int? RuntimeMinutes { get; }
+        public decimal? Rating { get; }
+        public bool IsAdult { get; }
+        public string Director { get; set; }
+        public IEnumerable<string> Actors { get; set; }
+        public string Genre { get; }
+
+        public Movie(int id, string title, int? year, int? runtimeMinutes, decimal? rating, bool isAdult, string genre)
+        {
+            Id = id;
+            Title = title;
+            Year = year;
+            RuntimeMinutes = runtimeMinutes;
+            Rating = rating;
+            IsAdult = isAdult;
+            Genre = genre;
+        }
     }
 }
