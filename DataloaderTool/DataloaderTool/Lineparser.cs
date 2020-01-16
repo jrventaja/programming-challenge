@@ -57,7 +57,10 @@ namespace DataloaderTool
                 newTitle.RuntimeMinutes = null;
             else
                 newTitle.RuntimeMinutes = int.Parse(splittedInput[7]);
-            newTitle.Genres = splittedInput[8].Split(DELIMITER).ToList();
+             if (splittedInput[8] == "\\N")
+                newTitle.Genres = new List<string>();
+            else
+                newTitle.Genres = splittedInput[8].Split(DELIMITER).ToList();
             return newTitle;
         }
 
