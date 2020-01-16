@@ -25,13 +25,13 @@ e.g:"PeopleData": "C:\\Users\\joser\\Documents\\Projects\\programming-challenge\
 
 ## Step 4
 
-Run "dotnetrun" at cmd while at the solution folder. (You need .NET FRAMEWORK CORE 2.1 installed)
+Run "dotnet build" and then "dotnet run" at cmd while at the solution folder. (You need .NET FRAMEWORK CORE 2.1 installed)
 It will take some time to load, because of the data size. After that, all tables are loaded with the data that was provided.
 
 ## Step 5
 
 Time to run the service application, so we can receive requests through our API. Edit the file at "MediaCatalog\MediaCatalog\appsettings.json" setting the ConnectionStrings/Storage/Server with the address your SQL Server is listening (usually LOCALHOST\SQLEXPRESS if you are not using a VM to run the application - e.g Docker).
-Use "dotnet run" at MediaCatalog solution.
+Use "dotnet build" and then "dotnet run" at MediaCatalog solution.
 
 ## Step 6
 
