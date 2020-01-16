@@ -41,11 +41,15 @@ Your application will be listening on port 44304 and is able to be tested.
 # API Documentation
 
 ## List media categories
+
 URL: api/categories
+
 REQUEST TYPE: GET
+
 No parameters supported
 
 Response:
+
 200(OK) + Content
 
 Content example:
@@ -55,12 +59,17 @@ Content example:
 
 ## List top rated movies
 URL: api/movies/top
+
 REQUEST TYPE: GET
-Supported query string parameters: year (number), page (number 1~n - default: 1), pageSize (number 1~n - default: 10).
+
+Supported query string parameters: year (number), page (number 1 to n - default: 1), pageSize (number 1 to n - default: 10).
+
 e.g: api/movies/top?year=2019, api/movies/top?page=3&pageSize=5
 
 Response:
+
 200(OK) + Content
+
 400(Bad Request)
 
 Content example:
@@ -68,12 +77,17 @@ Content example:
 
 ## List movies by category
 URL: api/movies
+
 REQUEST TYPE: GET
+
 Supported query string parameters: category (number - Must be informed, at this current version)
+
 e.g.: api/movies?category=10
 
 Response:
+
 200(OK) + Content
+
 400(BadRequest)
 
 Content example:
