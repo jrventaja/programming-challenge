@@ -20,7 +20,7 @@ namespace MediaCatalog.Repository
         {
             using (SqlConnection sqlConnection = new SqlConnection(_connectionString))
             {
-                string orderByString = $"ORDER BY TITLEGENRES_TITLE.ID OFFSET {(page - 1) * pageSize} ROWS FETCH NEXT {pageSize} ROWS ONLY";
+                string orderByString = $"ORDER BY ID OFFSET {(page - 1) * pageSize} ROWS FETCH NEXT {pageSize} ROWS ONLY";
 
                 var sqlQuery = $@"      SELECT
 											Title.ID As Id,
@@ -28,13 +28,12 @@ namespace MediaCatalog.Repository
                                             Title.STARTYEAR As Year,
                                             Title.RUNTIMEMINUTES As RuntimeMinutes,
                                             TitleRatings.RATING As Rating,
-                                            Title.ISADULT As IsAdult,
-											TitleGenres.GENRENAME As Genre
+                                            Title.ISADULT As IsAdult
 										FROM
                                             Title INNER JOIN TITLEGENRES_TITLE ON Title.ID = TITLEGENRES_TITLE.TITLEID
                                                 INNER JOIN TitleRatings ON TitleRatings.TITLEID = Title.ID 
                                         WHERE
-                                            TITLEGENRES_TITLE.GENREID = {category} AND ISADULT = 0 and RATING >= 6
+                                            TITLETYPE = 'movie' AND TITLEGENRES_TITLE.GENREID = {category} AND ISADULT = 0 and RATING >= 6
                                             {orderByString}";
 
                 var movieQueryResult = sqlConnection.Query<Movie>(sqlQuery);
@@ -46,12 +45,16 @@ namespace MediaCatalog.Repository
                                                         INNER JOIN Profession_People ON Profession_People.PEOPLEID = People.ID
                                                         INNER JOIN Profession ON Profession.ID = Profession_People.PROFESSIONID
                                                     WHERE TITLEID = {m.Id} AND PROFESSIONNAME IN ('actor','actress')");
-                    m.Director = sqlConnection.QueryFirst<string>($@" SELECT People.PRIMARYNAME
+                    m.Director = sqlConnection.QueryFirstOrDefault<string>($@" SELECT People.PRIMARYNAME
                                                     FROM
                                                         Title_People INNER JOIN People ON Title_People.PEOPLEID = People.ID
                                                         INNER JOIN Profession_People ON Profession_People.PEOPLEID = People.ID
                                                         INNER JOIN Profession ON Profession.ID = Profession_People.PROFESSIONID
                                                     WHERE TITLEID = {m.Id} AND PROFESSIONNAME = 'director'");
+                    m.Genres = sqlConnection.Query<string>($@" SELECT GENRENAME
+                                                    FROM
+                                                        TitleGenres INNER JOIN TitleGenres_Title ON TitleGenres.ID = TitleGenres_Title.GENREID
+                                                    WHERE TITLEID = {m.Id}");
                 }
                 return new Page<Movie>
                 {
@@ -62,7 +65,7 @@ namespace MediaCatalog.Repository
             }
         }
 
-        public Page<Movie> GetNonAdultTopMovies(int? year, int page, int pageSize)
+        public Page<Movie> GetNonAdultTopMovies(int? year, int page, int pageSize, int minimumVotes)
         {
             using (SqlConnection sqlConnection = new SqlConnection(_connectionString))
             {
@@ -75,12 +78,11 @@ namespace MediaCatalog.Repository
                                             Title.STARTYEAR As Year,
                                             Title.RUNTIMEMINUTES As RuntimeMinutes,
                                             TitleRatings.RATING As Rating,
-                                            Title.ISADULT As IsAdult,
-											TitleGenres.GENRENAME As Genre
+                                            Title.ISADULT As IsAdult
 										FROM
-                                            Title INNER JOIN TITLEGENRES_TITLE ON Title.ID = TITLEGENRES_TITLE.TITLEID
-                                                INNER JOIN TitleRatings ON TitleRatings.TITLEID = Title.ID 
-                                        {(year == null ? string.Empty : $"WHERE STARTYEAR = { year }")}";
+                                            Title INNER JOIN TitleRatings ON TitleRatings.TITLEID = Title.ID
+                                        WHERE
+                                            RATING >= 6 AND NUMVOTES >= {minimumVotes} AND TITLETYPE = 'movie' AND ISADULT = 0 {(year == null ? string.Empty : $"AND STARTYEAR = { year }")} {orderByString}";
 
                 var movieQueryResult = sqlConnection.Query<Movie>(sqlQuery);
                 foreach (Movie m in movieQueryResult)
@@ -91,12 +93,16 @@ namespace MediaCatalog.Repository
                                                         INNER JOIN Profession_People ON Profession_People.PEOPLEID = People.ID
                                                         INNER JOIN Profession ON Profession.ID = Profession_People.PROFESSIONID
                                                     WHERE TITLEID = {m.Id} AND PROFESSIONNAME IN ('actor','actress')");
-                    m.Director = sqlConnection.QueryFirst<string>($@" SELECT People.PRIMARYNAME
+                    m.Director = sqlConnection.QueryFirstOrDefault<string>($@" SELECT People.PRIMARYNAME
                                                     FROM
                                                         Title_People INNER JOIN People ON Title_People.PEOPLEID = People.ID
                                                         INNER JOIN Profession_People ON Profession_People.PEOPLEID = People.ID
                                                         INNER JOIN Profession ON Profession.ID = Profession_People.PROFESSIONID
                                                     WHERE TITLEID = {m.Id} AND PROFESSIONNAME = 'director'");
+                    m.Genres = sqlConnection.Query<string>($@" SELECT GENRENAME
+                                                    FROM
+                                                        TitleGenres INNER JOIN TitleGenres_Title ON TitleGenres.ID = TitleGenres_Title.GENREID
+                                                    WHERE TITLEID = {m.Id}");
                 }
                 return new Page<Movie>
                 {
