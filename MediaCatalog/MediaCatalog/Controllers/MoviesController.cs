@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaCatalog.Entity;
+using MediaCatalog.Entity.Model;
+using MediaCatalog.Entity.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MediaCatalog.Controllers
@@ -11,22 +13,31 @@ namespace MediaCatalog.Controllers
     [ApiController]
     public class MoviesController : ControllerBase
     {
+        private readonly ICatalogSearchService _catalogSearchService;
 
-        public MoviesController() // ADD DI
+        public MoviesController(ICatalogSearchService catalogSearchService)
         {
-
+            _catalogSearchService = catalogSearchService;
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Movie>> Get(int year, string orderBy, int page, int pageSize)
+        [HttpGet("top")]
+        public ActionResult<Page<Movie>> GetTopMovies(int? year, int? page, int? pageSize)
         {
-            return null;
+            if ((year ?? 1) <= 0 || (page ?? 1) <= 0 || (pageSize ?? 1) <= 0)
+                return BadRequest();
+
+            return Ok(_catalogSearchService.GetNonAdultTopMovies(year, page, pageSize));
+            
         }
         
-        [HttpGet("{id}")]
-        public ActionResult<Movie> Get(int id)
+        [HttpGet]
+        public ActionResult<Movie> GetMoviesByCategory(int category, int? page, int? pageSize)
         {
-            return null;
+            if (category <= 0 || (page ?? 1) <= 0 || (pageSize ?? 1) <= 0)
+                return BadRequest();
+
+            return Ok(_catalogSearchService.GetNonAdultMoviesByCategory(category, page, pageSize));
         }
     }
 }
+

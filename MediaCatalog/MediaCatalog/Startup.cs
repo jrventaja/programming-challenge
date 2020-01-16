@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaCatalog.Entity.Repository;
+using MediaCatalog.Entity.Service;
+using MediaCatalog.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -24,8 +27,9 @@ namespace MediaCatalog
         
         public void ConfigureServices(IServiceCollection services)
         {
-            // ADD DI
-            Configuration.GetConnectionString("Storage");
+            var connectionString = Configuration.GetConnectionString("Storage");
+            services.AddScoped<ICatalogSearchService, CatalogSearchService>();
+            services.AddScoped<ICatalogRepository>(s => new CatalogRepository(connectionString));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
         

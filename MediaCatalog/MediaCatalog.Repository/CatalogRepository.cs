@@ -1,13 +1,15 @@
 ﻿using Dapper;
 using MediaCatalog.Entity;
+using MediaCatalog.Entity.Entity;
 using MediaCatalog.Entity.Model;
+using MediaCatalog.Entity.Repository;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
 namespace MediaCatalog.Repository
 {
-    public class CatalogRepository
+    public class CatalogRepository : ICatalogRepository
     {
         private string _connectionString;
 
@@ -110,6 +112,22 @@ namespace MediaCatalog.Repository
                     PageSize = pageSize,
                     Content = movieQueryResult
                 };
+            }
+        }
+
+        public IEnumerable<Category> GetCategories()
+        {
+            using (SqlConnection sqlConnection = new SqlConnection(_connectionString))
+            {
+                var sqlQuery = @"      SELECT
+											ID,
+											GENRENAME As Name
+										FROM
+                                            TitleGenres";
+                                       
+
+                var categories = sqlConnection.Query<Category>(sqlQuery);
+                return categories;
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaCatalog.Entity;
+using MediaCatalog.Entity.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MediaCatalog.Controllers
@@ -11,15 +12,17 @@ namespace MediaCatalog.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        public CategoriesController() // ADD DI
-        {
+        private readonly ICatalogSearchService _catalogSearchService;
 
+        public CategoriesController(ICatalogSearchService catalogSearchService)
+        {
+            _catalogSearchService = catalogSearchService;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<string>> GetAll()
         {
-            return null;
+            return Ok(_catalogSearchService.GetCategories());
         }
     }
 }
